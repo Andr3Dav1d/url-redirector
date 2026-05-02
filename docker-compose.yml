@@ -1,0 +1,20 @@
+services:
+  redirector:
+    build: .
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      API_KEY: ${API_KEY}
+      PORT: 3000
+    networks:
+      - traefik-net  # rede externa do Traefik/Postgres
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.redirector.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.redirector.entrypoints=websecure"
+      - "traefik.http.routers.redirector.tls.certresolver=letsencrypt"
+      - "traefik.http.services.redirector.loadbalancer.server.port=3000"
+
+networks:
+  traefik-net:
+    external: true   # mesma rede que o Traefik/Postgres já usa
