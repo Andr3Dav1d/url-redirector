@@ -1,6 +1,6 @@
 # url-redirector
 
-API de encurtamento e redirecionamento de URLs construída com Node.js, Express e TypeScript. Usa PostgreSQL (Supabase) como banco e sobe via Docker com Traefik.
+API de encurtamento e redirecionamento de URLs construída com Node.js, Express e TypeScript. Usa PostgreSQL como banco e sobe via Docker com Traefik.
 
 ---
 
@@ -49,15 +49,15 @@ cp .env.example .env
 Edite o `.env` com suas credenciais:
 
 ```env
-DATABASE_URL=postgresql://postgres.xxxx:SENHA@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
+DATABASE_URL=postgresql://adavid:senha@postgres:5432/postgres?sslmode=disable
 API_KEY=sua-chave-aqui
 PORT=3000
-DOMAIN=r.seudominio.com
+DOMAIN_RULE=Host(`r.seudominio.com`)
 ```
 
 **3. Rode a migration**
 
-Cole o conteúdo de `migrations/001_init.sql` no **SQL Editor** do Supabase e execute.
+Cole o conteúdo de `migrations/001_init.sql` no seu Postgres e execute.
 
 **4. Inicie o servidor**
 
@@ -69,7 +69,7 @@ npm run dev
 
 ## Deploy no VPS
 
-Certifique-se de que o `.env` está preenchido com os valores reais e que a rede `proxy` do Traefik já existe. Depois:
+Certifique-se de que o `.env` está preenchido com os valores reais e que a rede `traefik-net` do Traefik já existe. Depois:
 
 ```bash
 docker compose up -d --build

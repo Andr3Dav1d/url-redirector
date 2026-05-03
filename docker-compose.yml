@@ -10,7 +10,7 @@ services:
       - traefik-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.redirector.rule=Host(`${DOMAIN}`)"
+      - "traefik.http.routers.redirector.rule=${DOMAIN_RULE}"
       - "traefik.http.routers.redirector.entrypoints=websecure"
       - "traefik.http.routers.redirector.tls.certresolver=letsencrypt"
       - "traefik.http.services.redirector.loadbalancer.server.port=${PORT}"
