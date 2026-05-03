@@ -11,9 +11,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.redirector.rule=${DOMAIN_RULE}"
-      - "traefik.http.routers.redirector.entrypoints=web,websecure"
-      - "traefik.http.routers.redirector.middlewares=redirect-to-https@docker"
-      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.routers.redirector.entrypoints=websecure"
       - "traefik.http.routers.redirector.tls.certresolver=letsencrypt"
       - "traefik.http.services.redirector.loadbalancer.server.port=${PORT}"
 
