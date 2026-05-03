@@ -1,19 +1,14 @@
-# ---- build ----
-FROM golang:1.22-alpine AS builder
-
+FROM node:22-alpine AS builder
 WORKDIR /app
-COPY go.mod go.sum ./
-RUN go mod download
-
+COPY package*.json ./
+RUN npm ci
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o redirector ./cmd/main.go
+RUN npm run build
 
-# ---- runtime ----
-FROM alpine:3.19
-
-RUN apk add --no-cache ca-certificates tzdata
+FROM node:22-alpine
 WORKDIR /app
-COPY --from=builder /app/redirector .
-
+COPY package*.json ./
+RUN npm ci --omit=dev
+COPY --from=builder /app/dist ./dist
 EXPOSE 3000
-CMD ["./redirector"]
+CMD ["node", "dist/index.js"]

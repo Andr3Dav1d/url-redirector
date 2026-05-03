@@ -1,51 +1,93 @@
 # url-redirector
 
-API de redirecionamento de URLs construída com Go + Fiber.
+API de encurtamento e redirecionamento de URLs construída com Node.js, Express e TypeScript. Usa PostgreSQL (Supabase) como banco e sobe via Docker com Traefik.
+
+---
 
 ## Stack
 
-- **Go 1.22** + **Fiber v2**
-- **PostgreSQL** via `pgx/v5`
-- **Docker** + **Traefik v3**
+- **Node.js 22** + **Express 4** + **TypeScript 5**
+- **postgres.js** para conexão com PostgreSQL
+- **Docker** + **Traefik v3** para deploy
+
+---
+
+## Estrutura
+
+```
+url-redirector/
+├── src/
+│   ├── db/index.ts           # conexão com o banco
+│   ├── handler/redirect.ts   # handlers HTTP + middleware de API key
+│   ├── repository/link.ts    # queries SQL
+│   └── index.ts              # entrypoint
+├── migrations/
+│   └── 001_init.sql          # cria a tabela links
+├── .env.example
+├── docker-compose.yml
+└── Dockerfile
+```
+
+---
 
 ## Setup local
 
+**1. Clone e instale as dependências**
+
 ```bash
-# 1. Dependências
-go mod tidy
-
-# 2. Variáveis de ambiente
-cp .env.example .env
-# edite .env com suas credenciais
-
-# 3. Migration (rode contra o seu Postgres)
-psql $DATABASE_URL -f migrations/001_init.sql
-
-# 4. Rodar
-go run ./cmd/main.go
+git clone https://github.com/seu-usuario/url-redirector.git
+cd url-redirector
+npm install
 ```
+
+**2. Configure as variáveis de ambiente**
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env` com suas credenciais:
+
+```env
+DATABASE_URL=postgresql://postgres.xxxx:SENHA@aws-1-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require
+API_KEY=sua-chave-aqui
+PORT=3000
+DOMAIN=r.seudominio.com
+```
+
+**3. Rode a migration**
+
+Cole o conteúdo de `migrations/001_init.sql` no **SQL Editor** do Supabase e execute.
+
+**4. Inicie o servidor**
+
+```bash
+npm run dev
+```
+
+---
 
 ## Deploy no VPS
 
-```bash
-# Copie o .env com as variáveis reais
-cp .env.example .env
+Certifique-se de que o `.env` está preenchido com os valores reais e que a rede `proxy` do Traefik já existe. Depois:
 
-# Sobe via Compose (usa a rede externa traefik-net)
+```bash
 docker compose up -d --build
 ```
 
-Observação: o `docker-compose.yml` espera que Traefik e Postgres já estejam na rede externa `traefik-net`.
+---
 
 ## Endpoints
 
 ### Público
 
-| Método | Rota     | Descrição                        |
-|--------|----------|----------------------------------|
-| GET    | `/:slug` | Redireciona para a URL de destino |
+| Método | Rota       | Descrição                         |
+|--------|------------|-----------------------------------|
+| GET    | `/:slug`   | Redireciona para a URL de destino |
 
-### Admin (header `X-API-Key: <sua_chave>`)
+### Admin
+
+Todas as rotas abaixo exigem o header `X-API-Key: <sua_chave>`.
 
 | Método | Rota               | Descrição            |
 |--------|--------------------|----------------------|
@@ -53,11 +95,35 @@ Observação: o `docker-compose.yml` espera que Traefik e Postgres já estejam n
 | GET    | `/api/links`       | Lista todos os links |
 | DELETE | `/api/links/:slug` | Remove um link       |
 
-### Exemplo de criação
+---
+
+## Exemplos
+
+**Criar um link**
 
 ```bash
-curl -X POST https://r.seudominio.com/api/links \
+curl -X POST http://localhost:3000/api/links \
   -H "Content-Type: application/json" \
-  -H "X-API-Key: troca-isso-aqui" \
+  -H "X-API-Key: sua-chave-aqui" \
   -d '{"slug": "yt", "target_url": "https://youtube.com"}'
+```
+
+**Testar o redirect**
+
+```bash
+curl -L http://localhost:3000/yt
+```
+
+**Listar links**
+
+```bash
+curl http://localhost:3000/api/links \
+  -H "X-API-Key: sua-chave-aqui"
+```
+
+**Deletar um link**
+
+```bash
+curl -X DELETE http://localhost:3000/api/links/yt \
+  -H "X-API-Key: sua-chave-aqui"
 ```
