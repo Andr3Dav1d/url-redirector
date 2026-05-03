@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>url-redirector / dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/dashboard.css" />
+</head>
+<body>
+<div id="key-overlay">
+  <div class="key-box">
+    <h2>// Autenticação</h2>
+    <input id="key-input" type="password" placeholder="x-api-key" />
+    <div class="key-error" id="key-error"></div>
+    <button class="btn-create" id="key-submit">Entrar</button>
+  </div>
+</div>
+<header>
+  <div id="offline-banner" class="offline-banner" hidden>Servidor offline</div>
+  <div class="logo">
+    <div class="logo-icon">↗</div>
+    <div class="logo-text">url-redirector <span>/ dashboard</span></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-val" id="stat-links">—</div><div class="stat-label">Links</div></div>
+    <div class="stat"><div class="stat-val" id="stat-clicks">—</div><div class="stat-label">Cliques totais</div></div>
+  </div>
+</header>
+<main>
+  <div class="section-title">Novo link</div>
+  <div class="form-row">
+    <input id="in-slug" type="text" placeholder="slug" />
+    <input id="in-url" type="text" placeholder="https://destino.com" />
+    <button class="btn-create" id="create-submit">+ Adicionar</button>
+  </div>
+  <div class="section-title">Links ativos</div>
+  <table>
+    <thead><tr><th>Slug</th><th>Destino</th><th>Cliques</th><th>Criado em</th><th></th></tr></thead>
+    <tbody id="links-body"><tr><td colspan="5" class="state-msg">Carregando...</td></tr></tbody>
+  </table>
+</main>
+<div id="toast"></div>
+<script src="/dashboard.js"></script>
+</body>
+</html>

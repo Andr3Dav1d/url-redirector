@@ -3,7 +3,7 @@ import * as repo from "../repository/link";
 
 export function apiKeyMiddleware(req: Request, res: Response, next: NextFunction) {
   if (req.headers["x-api-key"] !== process.env.API_KEY) {
-    res.status(401).json({ error: "chave inválida" });
+    res.status(401).json({ error: "Chave inválida" });
     return;
   }
   next();
@@ -12,7 +12,7 @@ export function apiKeyMiddleware(req: Request, res: Response, next: NextFunction
 export async function redirect(req: Request, res: Response) {
   const link = await repo.getBySlug(req.params.slug);
   if (!link) {
-    res.status(404).json({ error: "link não encontrado" });
+    res.status(404).json({ error: "Link não encontrado" });
     return;
   }
   repo.incrementClicks(req.params.slug).catch(console.error);
@@ -22,7 +22,7 @@ export async function redirect(req: Request, res: Response) {
 export async function createLink(req: Request, res: Response) {
   const { slug, target_url } = req.body;
   if (!slug || !target_url) {
-    res.status(400).json({ error: "slug e target_url são obrigatórios" });
+    res.status(400).json({ error: "Slug e target_url são obrigatórios" });
     return;
   }
   const link = await repo.create(slug, target_url);
