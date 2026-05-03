@@ -2,16 +2,15 @@ services:
   redirector:
     build: .
     restart: unless-stopped
-    env_file: .env
     networks:
-      - proxy
+      - traefik-net
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.redirector.rule=Host(`${DOMAIN}`)"
       - "traefik.http.routers.redirector.entrypoints=websecure"
       - "traefik.http.routers.redirector.tls.certresolver=letsencrypt"
-      - "traefik.http.services.redirector.loadbalancer.server.port=3000"
+      - "traefik.http.services.redirector.loadbalancer.server.port=${PORT}"
 
 networks:
-  proxy:
+  traefik-net:
     external: true
