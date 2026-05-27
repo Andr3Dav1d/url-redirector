@@ -37,11 +37,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set lowercase image tag
+        id: image
+        run: |
+          IMAGE_REPO=ghcr.io/${{ github.repository }}
+          IMAGE_REPO_LC=$(echo "$IMAGE_REPO" | tr '[:upper:]' '[:lower:]')
+          echo "image=$IMAGE_REPO_LC" >> "$GITHUB_OUTPUT"
+
       - uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}:latest
+          tags: ${{ steps.image.outputs.image }}:latest
 
       - name: Trigger Portainer webhook
         run: curl -fsS -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}"

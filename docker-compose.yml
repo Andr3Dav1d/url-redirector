@@ -1,6 +1,6 @@
 services:
   redirector:
-    image: ghcr.io/Andr3Dav1d/url-redirector:latest
+    image: ghcr.io/andr3dav1d/url-redirector:latest
     restart: unless-stopped
     environment:
       - DATABASE_URL=${DATABASE_URL}
