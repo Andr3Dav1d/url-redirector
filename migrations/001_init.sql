@@ -1,10 +1,44 @@
+-- Migration: inicialização da tabela `links` com validações e índices recomendados
+BEGIN;
+
+-- Extensões e tipos
+CREATE EXTENSION IF NOT EXISTS citext;
+CREATE TYPE IF NOT EXISTS link_category AS ENUM ('geral', 'marketing', 'social');
+
+-- Tabela `links` (slug case-insensitive via `citext`)
 CREATE TABLE IF NOT EXISTS links (
-    id         SERIAL PRIMARY KEY,
-    slug       TEXT NOT NULL UNIQUE,
-    target_url TEXT NOT NULL,
-    category   TEXT NOT NULL DEFAULT 'geral',
-    clicks     INTEGER NOT NULL DEFAULT 0,
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+        id         SERIAL PRIMARY KEY,
+        slug       citext NOT NULL UNIQUE,
+        target_url TEXT NOT NULL,
+        category   link_category NOT NULL DEFAULT 'geral',
+        clicks     BIGINT NOT NULL DEFAULT 0,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+        -- Validações
+        CONSTRAINT links_slug_nonempty CHECK (trim(slug) <> ''),
+        CONSTRAINT links_slug_maxlen CHECK (char_length(slug) <= 64),
+        CONSTRAINT links_slug_format CHECK (slug ~ '^[A-Za-z0-9_-]+$'),
+        CONSTRAINT links_target_url_valid CHECK (target_url ~* '^https?://')
 );
 
-CREATE INDEX IF NOT EXISTS idx_links_slug ON links(slug);
+-- Índices úteis
+CREATE INDEX IF NOT EXISTS idx_links_category ON links(category);
+CREATE INDEX IF NOT EXISTS idx_links_created_at ON links(created_at);
+
+-- Trigger para manter `updated_at`
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_links_updated_at ON links;
+CREATE TRIGGER trg_links_updated_at
+BEFORE UPDATE ON links
+FOR EACH ROW
+EXECUTE FUNCTION set_updated_at();
+
+COMMIT;

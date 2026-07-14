@@ -6,8 +6,8 @@ if (!process.env.DATABASE_URL) {
 }
 
 const databaseUrl = process.env.DATABASE_URL;
-const sslMode = new URL(databaseUrl).searchParams.get("sslmode");
-const useSsl = sslMode && sslMode !== "disable";
+const sslMode = new URL(databaseUrl).searchParams.get("sslmode") ?? process.env.PGSSLMODE;
+const useSsl = sslMode ? !["disable", "false", "0"].includes(sslMode.toLowerCase()) : false;
 const sql = postgres(databaseUrl, useSsl ? { ssl: "require" } : {});
 
 export default sql;
